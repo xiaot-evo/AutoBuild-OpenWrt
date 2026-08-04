@@ -19,12 +19,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 每个工作流按固定顺序执行：
 
 1. **Clone 源码** → 克隆对应 OpenWrt 源码
-2. **运行设备定制脚本** (`devices/<name>/customize.sh`) — 在 OpenWrt 目录内执行，适用于添加自定义包、patch
+2. **运行设备定制脚本** (`devices/<name>/customize.sh`) — 在 OpenWrt 目录内执行，负责改 IP、添加自定义包、patch、feed 等所有设备定制操作
 3. **更新 & 安装 feeds**
-4. **配置** → 复制设备 config 为 `.config` → 运行全局 `customize.sh`（修改默认 IP 等）→ `make defconfig`
+4. **配置** → 复制设备 config 为 `.config` → `make defconfig`
 5. **下载包** → `make download`
 6. **编译** → `yes "" | make -j$(nproc) V=s`（`yes ""` 防止内核 syncconfig 在 CI 无终端环境中进入交互模式）
 7. **上传 artifact** + **发布到 Release**（固定 tag，每次覆盖更新）
+8. Workflow 不做任何隐式定制操作（不添加 feed、不运行全局脚本），一切设备定制通过 `devices/<name>/customize.sh` 显式完成
 
 ## 文件结构
 
@@ -32,7 +33,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 devices/<name>/
 ├── <name>.config          # OpenWrt .config，从本地构建目录复制
 └── customize.sh           # 设备专属脚本，在 feeds 之前于 openwrt/ 内运行
-customize.sh               # 全局脚本（改默认 IP 为 192.168.5.1）
 .github/workflows/
 ├── Build_JDCloud_AX3000.yml
 ├── Build_Redmi_AX5_JDCloud.yml
