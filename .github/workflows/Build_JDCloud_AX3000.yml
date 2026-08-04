@@ -16,8 +16,8 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   DEVICE_NAME: JDCloud_AX3000
-  REPO_URL: https://github.com/coolsnowwolf/lede
-  REPO_BRANCH: master
+  REPO_URL: https://github.com/Lienol/openwrt
+  REPO_BRANCH: 25.12
   CONFIG_FILE: devices/JDCloud_AX3000/JDCloud_AX3000.config
   TARGET_BOARD: qualcommax
   TARGET_SUBTARGET: ipq50xx
@@ -51,8 +51,9 @@ jobs:
     - name: Clone source code
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-        cd openwrt
-        echo "src-git ssrp https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
+        # Add custom packages
+        cp devices/$DEVICE_NAME/add-custom-packages.sh openwrt/
+        cd openwrt && chmod +x add-custom-packages.sh && ./add-custom-packages.sh
 
     - name: Update & Install feeds
       working-directory: ./openwrt
