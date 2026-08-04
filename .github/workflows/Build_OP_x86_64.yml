@@ -88,13 +88,12 @@ jobs:
         path: openwrt/bin
 
     - name: Upload to Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ env.RELEASE_TAG }}
         files: openwrt/bin/targets/${{ env.TARGET_BOARD }}/${{ env.TARGET_SUBTARGET }}/*
         body: |
           x86_64 OpenWrt 固件
           - 架构: x86 / 64
           - 自动每周构建
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
