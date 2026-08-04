@@ -63,9 +63,8 @@ jobs:
     - name: Clone source code
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-        cp devices/$DEVICE_NAME/customize.sh openwrt/
-        cp devices/$DEVICE_NAME/*.patch openwrt/ 2>/dev/null || true
-        cd openwrt && chmod +x customize.sh && ./customize.sh
+        cp -r devices/$DEVICE_NAME openwrt/device-files
+        cd openwrt && chmod +x device-files/customize.sh && ./device-files/customize.sh
 
     - name: Update & Install feeds
       working-directory: ./openwrt

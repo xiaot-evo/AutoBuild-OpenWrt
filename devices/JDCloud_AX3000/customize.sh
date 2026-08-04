@@ -5,6 +5,6 @@
 #=================================================
 
 # Apply device-specific patches
-for patch in *.patch; do
+for patch in device-files/*.patch; do
     [ -f "$patch" ] && { echo "Applying $patch..."; patch -p1 < "$patch"; }
 done
