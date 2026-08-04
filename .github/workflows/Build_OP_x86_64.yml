@@ -66,6 +66,7 @@ jobs:
       run: |
         [ -e $CONFIG_FILE ] || { echo "ERROR: $CONFIG_FILE not found"; exit 1; }
         mv $CONFIG_FILE openwrt/.config
+        chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
 
     - name: Download package
