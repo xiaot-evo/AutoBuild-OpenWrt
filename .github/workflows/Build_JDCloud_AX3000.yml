@@ -2,15 +2,25 @@
 # Description: Build OpenWrt using GitHub Actions
 # Lisence: MIT
 # Author: eSirPlayground
-# Youtube Channel: https://goo.gl/fvkdwm 
+# Youtube Channel: https://goo.gl/fvkdwm
 #=================================================
 
-name: Build_JDCloud_AX300
+name: Build_JDCloud_AX3000
 
-# Add a button to trigger the workflow
-on: 
+on:
   repository_dispatch:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'  # 每周一 UTC 00:00 自动构建
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: master
+  CONFIG_FILE: JDCloud_AX3000.config
+  TARGET_BOARD: qualcommax
+  TARGET_SUBTARGET: ipq50xx
+  RELEASE_TAG: JDCloud_AX3000
 
 jobs:
   build:
@@ -21,8 +31,6 @@ jobs:
       uses: actions/checkout@master
 
     - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
         set +e
         docker rmi `docker images -q`
@@ -40,14 +48,11 @@ jobs:
         sudo -E apt-get clean
 
     - name: Clone source code
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "src-git ssrp https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
-        
+
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
@@ -55,13 +60,11 @@ jobs:
         ./scripts/feeds install -a
 
     - name: Configuration Customization - Build_JDCloud_AX3000
-      env:
-        CONFIG_FILE: 'JDCloud_AX3000.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
-        
+
     - name: Download package
       working-directory: ./openwrt
       run: |
@@ -75,8 +78,28 @@ jobs:
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
 
-    - name : Upload artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: OpenWrt
         path: openwrt/bin
+
+    - name: Organize and package firmware
+      run: |
+        FIRMWARE_DIR="openwrt/bin/targets/$TARGET_BOARD/$TARGET_SUBTARGET"
+        mkdir -p release/targets/$TARGET_BOARD/$TARGET_SUBTARGET
+        cp -r $FIRMWARE_DIR/* release/targets/$TARGET_BOARD/$TARGET_SUBTARGET/
+        cd release
+        tar czf ../OpenWrt_JDCloud_AX3000_firmware.tar.gz targets/
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        files: OpenWrt_JDCloud_AX3000_firmware.tar.gz
+        body: |
+          JDCloud AX3000 OpenWrt 固件
+          - 架构: qualcommax / ipq50xx
+          - 自动每周构建
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
