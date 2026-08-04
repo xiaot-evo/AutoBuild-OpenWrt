@@ -15,9 +15,10 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  DEVICE_NAME: x86_64
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  CONFIG_FILE: x86_64.config
+  CONFIG_FILE: devices/x86_64/x86_64.config
   TARGET_BOARD: x86
   TARGET_SUBTARGET: 64
   RELEASE_TAG: x86_64
@@ -61,8 +62,13 @@ jobs:
 
     - name: Configuration Customization - Build_x86_64
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE ] || { echo "ERROR: $CONFIG_FILE not found"; exit 1; }
+        mv $CONFIG_FILE openwrt/.config
+        # Global customize script
         chmod +x ./customize.sh && ./customize.sh
+        # Device-specific customize script
+        DEVICE_SCRIPT="devices/$DEVICE_NAME/customize.sh"
+        [ -e $DEVICE_SCRIPT ] && { chmod +x $DEVICE_SCRIPT && $DEVICE_SCRIPT; }
         cd openwrt && make defconfig
 
     - name: Download package
