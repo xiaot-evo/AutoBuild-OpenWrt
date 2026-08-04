@@ -2,15 +2,25 @@
 # Description: Build OpenWrt using GitHub Actions
 # Lisence: MIT
 # Author: eSirPlayground
-# Youtube Channel: https://goo.gl/fvkdwm 
+# Youtube Channel: https://goo.gl/fvkdwm
 #=================================================
 
 name: Build_x86_64
 
-# Add a button to trigger the workflow
-on: 
+on:
   repository_dispatch:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'  # 每周一 UTC 00:00 自动构建
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: master
+  CONFIG_FILE: x86_64.config
+  TARGET_BOARD: x86
+  TARGET_SUBTARGET: 64
+  RELEASE_TAG: x86_64
 
 jobs:
   build:
@@ -21,8 +31,6 @@ jobs:
       uses: actions/checkout@master
 
     - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
         set +e
         docker rmi `docker images -q`
@@ -40,40 +48,23 @@ jobs:
         sudo -E apt-get clean
 
     - name: Clone source code
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "src-git ssrp https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
-        
+
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        ./scripts/feeds install -a
-
-    #- name: Import external feeds - passwall
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone https://github.com/xiaorouji/openwrt-passwall.git package/lienol
-    #    git clone "your_github_link" package/"your_folder_name"      
-
-    #- name: Import external feeds - JerryKuKu Argon
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon-jerrykuku
 
     - name: Configuration Customization - Build_x86_64
-      env:
-        CONFIG_FILE: 'x86_64.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
-        
+
     - name: Download package
       working-directory: ./openwrt
       run: |
@@ -87,8 +78,20 @@ jobs:
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
 
-    - name : Upload artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: OpenWrt
         path: openwrt/bin
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        files: openwrt/bin/targets/${{ env.TARGET_BOARD }}/${{ env.TARGET_SUBTARGET }}/*
+        body: |
+          x86_64 OpenWrt 固件
+          - 架构: x86 / 64
+          - 自动每周构建
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

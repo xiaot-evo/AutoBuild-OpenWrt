@@ -84,19 +84,11 @@ jobs:
         name: OpenWrt
         path: openwrt/bin
 
-    - name: Organize and package firmware
-      run: |
-        FIRMWARE_DIR="openwrt/bin/targets/$TARGET_BOARD/$TARGET_SUBTARGET"
-        mkdir -p release/targets/$TARGET_BOARD/$TARGET_SUBTARGET
-        cp -r $FIRMWARE_DIR/* release/targets/$TARGET_BOARD/$TARGET_SUBTARGET/
-        cd release
-        tar czf ../OpenWrt_JDCloud_AX3000_firmware.tar.gz targets/
-
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
-        files: OpenWrt_JDCloud_AX3000_firmware.tar.gz
+        files: openwrt/bin/targets/${{ env.TARGET_BOARD }}/${{ env.TARGET_SUBTARGET }}/*
         body: |
           JDCloud AX3000 OpenWrt 固件
           - 架构: qualcommax / ipq50xx
