@@ -53,6 +53,8 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "src-git ssrp https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
+        # Run device customize script
+        [ -e ../devices/$DEVICE_NAME/customize.sh ] && { cp ../devices/$DEVICE_NAME/customize.sh . && chmod +x customize.sh && ./customize.sh; }
 
     - name: Update & Install feeds
       working-directory: ./openwrt
@@ -66,9 +68,6 @@ jobs:
         mv $CONFIG_FILE openwrt/.config
         # Global customize script
         chmod +x ./customize.sh && ./customize.sh
-        # Device-specific customize script
-        DEVICE_SCRIPT="devices/$DEVICE_NAME/customize.sh"
-        [ -e $DEVICE_SCRIPT ] && { chmod +x $DEVICE_SCRIPT && $DEVICE_SCRIPT; }
         cd openwrt && make defconfig
 
     - name: Download package
