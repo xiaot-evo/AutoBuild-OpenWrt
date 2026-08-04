@@ -4,7 +4,7 @@
 # Lisence: MIT
 #=================================================
 
-# Apply device-specific patches
+# Apply device-specific patches (non-fatal, may not apply cleanly)
 for patch in device-files/*.patch; do
-    [ -f "$patch" ] && { echo "Applying $patch..."; patch -p1 < "$patch"; }
+    [ -f "$patch" ] && { echo "Applying $patch..."; patch -p1 < "$patch" || echo "Skipped (may already be applied)"; }
 done

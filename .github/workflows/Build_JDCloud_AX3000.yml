@@ -16,8 +16,8 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   DEVICE_NAME: JDCloud_AX3000
-  REPO_URL: https://github.com/coolsnowwolf/lede
-  REPO_BRANCH: master
+  REPO_URL: https://github.com/Lienol/openwrt
+  REPO_BRANCH: 25.12
   CONFIG_FILE: devices/JDCloud_AX3000/JDCloud_AX3000.config
   TARGET_BOARD: qualcommax
   TARGET_SUBTARGET: ipq50xx
