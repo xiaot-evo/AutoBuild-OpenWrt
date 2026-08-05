@@ -70,6 +70,9 @@ jobs:
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
+        # Remove smpackage packages that conflict with Lienol/OpenWrt core packages
+        # (command from kenzok8/small-package README)
+        rm -rf feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb}
         ./scripts/feeds install -a
 
     - name: Configuration Customization - Build_JDCloud_AX3000
