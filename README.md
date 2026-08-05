@@ -4,7 +4,9 @@
 ![GitHub Forks](https://img.shields.io/github/forks/xiaot-evo/AutoBuild-OpenWrt.svg?style=flat&logo=appveyor&label=Forks&logo=github)
 ![GitHub last commit](https://img.shields.io/github/last-commit/xiaot-evo/AutoBuild-OpenWrt?label=Latest%20Commit&logo=github)
 
-基于 [eSirPlayground/AutoBuild-OpenWrt](https://github.com/eSirPlayground/AutoBuild-OpenWrt) 的 OpenWrt 固件自动构建项目。通过 GitHub Actions 为多个设备编译固件并发布到 GitHub Releases，无需本地编译环境。
+English | [简体中文](README_zh.md)
+
+Build OpenWrt firmware for multiple devices via GitHub Actions. Forked from [eSirPlayground/AutoBuild-OpenWrt](https://github.com/eSirPlayground/AutoBuild-OpenWrt); all builds run in CI, no local toolchain required.
 
 Thanks to:
 - [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt/)
@@ -22,10 +24,10 @@ Thanks to:
 
 **1. Prerequisite**
   - Sign up for [GitHub Actions](https://github.com/features/actions/signup)
-  - Fork [this GitHub repository](https://github.com/xiaot-evo/AutoBuild-OpenWrt)
+  - Fork [this repository](https://github.com/xiaot-evo/AutoBuild-OpenWrt)
 
 **2. Compile Firmware**
-  - Click `[.github/workflows]` folder on the top of repo and you could see few workflow files, Each for one particular device.
+  - Click `[.github/workflows]` folder on the top of repo and you could see few workflow files, each for one particular device.
   - Click "Actions" on the menu, click your favorite device on the left side, then click the "Run workflow" button on the right side and confirm.
   - The build starts automatically. Progress can be viewed on the Actions page.
   - When the build is complete, click the `Artifacts` button in the upper right corner of the Actions page to download the binaries.
@@ -39,10 +41,10 @@ Thanks to:
 ## Build Customization
 
 - Global `customize.sh` (all devices): rewrites the default LuCI IP to `192.168.10.1` in `package/base-files/files/config_generate`.
-- Device-specific `devices/<name>/customize.sh` runs inside the cloned source before feeds are updated:
+- Device-specific `devices/<name>/customize.sh` runs inside the cloned source tree before feeds are updated:
   - **JDCloud AX3000**
     - Applies `device-files/*.patch` (e.g. ipq50xx SKB recycler kernel config)
-    - Sparse-checkouts only `msd_lite` + `luci-app-msd_lite` from [kenzok8/small-package](https://github.com/kenzok8/small-package) into `package/` (avoids pulling the whole feed and package conflicts)
-    - Clones [jerrykuku/luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon) theme into `package/`
+    - Sparse-checkouts only `msd_lite` + `luci-app-msd_lite` from [kenzok8/small-package](https://github.com/kenzok8/small-package) into `package/` (avoids cloning the whole feed and package conflicts)
+    - Installs the custom theme **luci-theme-argon** ([jerrykuku/luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)) into `package/` as the default LuCI theme
   - **Redmi AX5 JDCloud / x86_64**: currently an empty template
 - Build flow: checkout → free disk space → install deps → clone source + customize → `feeds update -a` / `feeds install -a` → config + `make defconfig` → `make download` → `make -j$(nproc) V=s` → upload artifact & release.
