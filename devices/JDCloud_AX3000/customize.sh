@@ -6,16 +6,5 @@
 
 # Apply device-specific patches
 for patch in device-files/*.patch; do
-    [ -f "$patch" ] && { echo "Applying $patch..."; patch -p1 < "$patch"; }
+    [ -f "$patch" ] && { echo "Applying $patch..."; git apply "$patch" 2>/dev/null || patch -p1 < "$patch"; }
 done
-
-# Fetch only msd_lite + luci-app-msd_lite from kenzok8/small-package
-# Sparse checkout: avoids cloning the whole feed and any package conflicts
-# (e.g. luci-app-zerotier init.d clash with the zerotier package).
-git clone --depth 1 --filter=blob:none --sparse https://github.com/kenzok8/small-package /tmp/small-package
-git -C /tmp/small-package sparse-checkout set msd_lite luci-app-msd_lite
-cp -r /tmp/small-package/msd_lite /tmp/small-package/luci-app-msd_lite package/
-rm -rf /tmp/small-package
-
-# Add luci-theme-argon (repo root itself is the package Makefile)
-git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
