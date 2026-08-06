@@ -16,7 +16,7 @@ Thanks to:
 
 | Device | Workflow | Source | Branch | Arch |
 |---|---|---|---|---|
-| JDCloud AX3000 | `Build_JDCloud_AX3000.yml` | Lienol/openwrt | 25.12 | qualcommax/ipq50xx |
+| JDCloud AX3000 | `Build_JDCloud_AX3000.yml` | immortalwrt/immortalwrt | openwrt-25.12 | qualcommax/ipq50xx |
 | Redmi AX5 JDCloud | `Build_Redmi_AX5_JDCloud.yml` | LiBwrt/LibWrt | 25.12-nss | qualcommax/ipq60xx |
 | x86_64 | `Build_OP_x86_64.yml` | coolsnowwolf/lede | master | x86/64 |
 
@@ -43,8 +43,8 @@ Thanks to:
 - Global `customize.sh` (all devices): rewrites the default LuCI IP to `192.168.10.1` in `package/base-files/files/config_generate`.
 - Device-specific `devices/<name>/customize.sh` runs inside the cloned source tree before feeds are updated:
   - **JDCloud AX3000**
-    - Applies `device-files/*.patch` (e.g. ipq50xx SKB recycler kernel config)
-    - Sparse-checkouts only `msd_lite` + `luci-app-msd_lite` from [kenzok8/small-package](https://github.com/kenzok8/small-package) into `package/` (avoids cloning the whole feed and package conflicts)
-    - Installs the custom theme **luci-theme-argon** ([jerrykuku/luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)) into `package/` as the default LuCI theme
+    - Applies `device-files/*.patch` — full RE-CS-03 device support (DTS / ath11k BDF / eMMC upgrade / uboot-env / caldata), migrated from [jdc_re-cs-03](https://github.com/pmyy-wt/jdc_re-cs-03) (openwrt main) to immortalwrt openwrt-25.12
+    - Adapted for the **big-partition** layout (`gpt.bin`): single-slot eMMC partitions `0:HLOS` / `rootfs` / `rootfs_data` / `swap`; `sysupgrade` targets the actual partition names (not the upstream dual-slot `*_1` names)
+    - Persistent `rootfs_data` overlay via `fstools_partname_fallback_scan=1` bootarg (matched by GPT PARTNAME, so partition layout changes are tolerated)
   - **Redmi AX5 JDCloud / x86_64**: currently an empty template
 - Build flow: checkout → free disk space → install deps → clone source + customize → `feeds update -a` / `feeds install -a` → config + `make defconfig` → `make download` → `make -j$(nproc) V=s` → upload artifact & release.
