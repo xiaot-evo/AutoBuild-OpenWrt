@@ -40,7 +40,7 @@
 
 ## 构建定制
 
-- 全局 `customize.sh`（所有设备生效）：将 `package/base-files/files/config_generate` 中的默认 IP 改写为 `192.168.10.1`。
+- 全局 `customize.sh`（所有设备生效）：将 `package/base-files/files/bin/config_generate` 中的默认 IP 改写为 `192.168.10.1`。
 - 设备专属 `devices/<name>/customize.sh`：在克隆的源码树内、feeds 更新之前运行：
   - **JDCloud AX3000**
     - 应用 `device-files/*.patch` —— RE-CS-03 完整设备支持（DTS / ath11k BDF / eMMC 升级 / uboot-env / caldata），从 [jdc_re-cs-03](https://github.com/pmyy-wt/jdc_re-cs-03)（openwrt main）迁移到 immortalwrt openwrt-25.12

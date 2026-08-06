@@ -40,7 +40,7 @@ Thanks to:
 
 ## Build Customization
 
-- Global `customize.sh` (all devices): rewrites the default LuCI IP to `192.168.10.1` in `package/base-files/files/config_generate`.
+- Global `customize.sh` (all devices): rewrites the default LuCI IP to `192.168.10.1` in `package/base-files/files/bin/config_generate`.
 - Device-specific `devices/<name>/customize.sh` runs inside the cloned source tree before feeds are updated:
   - **JDCloud AX3000**
     - Applies `device-files/*.patch` — full RE-CS-03 device support (DTS / ath11k BDF / eMMC upgrade / uboot-env / caldata), migrated from [jdc_re-cs-03](https://github.com/pmyy-wt/jdc_re-cs-03) (openwrt main) to immortalwrt openwrt-25.12
