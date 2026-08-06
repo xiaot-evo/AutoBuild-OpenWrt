@@ -46,5 +46,6 @@
     - 应用 `device-files/*.patch` —— RE-CS-03 完整设备支持（DTS / ath11k BDF / eMMC 升级 / uboot-env / caldata），从 [jdc_re-cs-03](https://github.com/pmyy-wt/jdc_re-cs-03)（openwrt main）迁移到 immortalwrt openwrt-25.12
     - 适配**大分区**（`gpt.bin`）：单槽 eMMC 分区 `0:HLOS` / `rootfs` / `rootfs_data` / `swap`；`sysupgrade` 按实际分区名写入（而非上游双槽 `*_1` 名）
     - `rootfs_data` 持久化 overlay：通过 `fstools_partname_fallback_scan=1` 启动参数（按 GPT 分区名匹配，分区表变动不影响）
+    - **已知问题——首次启动需手动格式化 `rootfs_data`。** 大分区布局使用独立的 `rootfs_data` 分区（p16，ext4）。与 rootdisk 布局（如 Redmi AX5 JDCloud）或 MTD 设备不同，fstools **不会**自动格式化 eMMC 上独立的 `rootfs_data`（`jffs2_switch()` 只初始化 MTD 卷），因此首次启动会退回 tmpfs overlay。若 `df -h` 显示 `/` 为小型 tmpfs，执行一次：`mkfs.ext4 -L rootfs_data /dev/mmcblk0p16 && reboot`（一次性操作，之后分区数据保留）。
   - **Redmi AX5 JDCloud / x86_64**：目前为空模板
 - 构建流程：checkout → 清理磁盘 → 安装依赖 → 克隆源码 + 设备定制 → `feeds update -a` / `feeds install -a` → 配置 + `make defconfig` → `make download` → `make -j$(nproc) V=s` → 上传 artifact 并发布 Release。
