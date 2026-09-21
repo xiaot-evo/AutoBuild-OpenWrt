@@ -29,8 +29,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 两个 customize.sh 的分工
 
-- `devices/<name>/customize.sh` — 设备专属，复制到 `openwrt/device-files/` 后在 openwrt/ 内执行（feeds 之前）。JDCloud AX3000 用它以 `git apply`（失败回退 `patch -p1`）循环应用 `device-files/*.patch`；Redmi / x86_64 目前是空模板
+- `devices/<name>/customize.sh` — 设备专属，复制到 `openwrt/device-files/` 后在 openwrt/ 内执行（feeds 之前）。JDCloud AX3000 用它以 `git apply`（失败回退 `patch -p1`）循环应用 `device-files/*.patch`；Redmi AX5 用它备好自定义源（nikki feed + aurora 主题）；x86_64 目前是空模板
 - 根目录 `customize.sh` — 全局隐式定制，配置阶段（feeds 之后）执行，把 `openwrt/package/base-files/files/config_generate` 中的默认 IP 从 192.168.1.1 改为 192.168.10.1，所有设备构建都会生效
+
+### Redmi AX5 JDCloud 的自定义源
+
+`.config` 启用了 5 个 libwrt 默认源之外的包，设备脚本必须在 `feeds update -a` 之前把它们备好，否则 `make defconfig` 会静默丢弃这些符号：
+
+| 包 | 来源 | customize.sh 的动作 |
+|---|---|---|
+| `nikki` / `luci-app-nikki` / `luci-i18n-nikki-zh-cn` / `mihomo-meta` | [nikkinikki-org/OpenWrt-nikki](https://github.com/nikkinikki-org/OpenWrt-nikki)（feed，`main` 分支） | 向 `feeds.conf.default` 追加 `src-git nikki` |
+| `luci-theme-aurora` | [eamonxg/luci-theme-aurora](https://github.com/eamonxg/luci-theme-aurora)（非 feed，直接放 `package/`） | `git clone` 到 `package/luci-theme-aurora`（本地验证版本 v1.4.0，克隆跟随默认分支） |
+
+`luci-app-aurora-config` 在 `.config` 中是 `is not set`，所以不引入 [eamonxg/luci-app-aurora-config](https://github.com/eamonxg/luci-app-aurora-config)。
 
 ## 文件结构
 

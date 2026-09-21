@@ -47,5 +47,8 @@ Thanks to:
     - Adapted for the **big-partition** layout (`gpt.bin`): single-slot eMMC partitions `0:HLOS` / `rootfs` / `rootfs_data` / `swap`; `sysupgrade` targets the actual partition names (not the upstream dual-slot `*_1` names)
     - Persistent `rootfs_data` overlay via `fstools_partname_fallback_scan=1` bootarg (matched by GPT PARTNAME, so partition layout changes are tolerated)
     - **Known issue — first boot needs a manual `rootfs_data` format.** The big-partition layout uses a dedicated `rootfs_data` partition (p16, ext4). Unlike rootdisk layouts (e.g. Redmi AX5 JDCloud) or MTD devices, fstools does **not** auto-format a standalone eMMC `rootfs_data` (`jffs2_switch()` only initializes MTD volumes), so the first boot falls back to a tmpfs overlay. If `df -h` shows `/` on a small tmpfs, run once: `mkfs.ext4 -L rootfs_data /dev/mmcblk0p16 && reboot` (this is a one-time action; the partition keeps its data afterwards).
-  - **Redmi AX5 JDCloud / x86_64**: currently an empty template
+  - **Redmi AX5 JDCloud**
+    - Appends the **nikki** feed ([nikkinikki-org/OpenWrt-nikki](https://github.com/nikkinikki-org/OpenWrt-nikki), `main`) to `feeds.conf.default` — LibWrt does not ship it, while the config enables `nikki` / `luci-app-nikki` / `mihomo-meta` / `luci-i18n-nikki-zh-cn`
+    - Clones the **aurora** theme ([eamonxg/luci-theme-aurora](https://github.com/eamonxg/luci-theme-aurora)) into `package/luci-theme-aurora` (validated with v1.4.0; the clone follows the default branch head)
+  - **x86_64**: currently an empty template
 - Build flow: checkout → free disk space → install deps → clone source + customize → `feeds update -a` / `feeds install -a` → config + `make defconfig` → `make download` → `make -j$(nproc) V=s` → upload artifact & release.
